@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Omzi - Checkout</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding:20px; background:#f9f9f9; }
+        nav { margin-bottom:20px; }
+        nav a { margin-right:15px; text-decoration:none; font-weight:bold; color:#333; }
+        form { max-width:400px; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+        input { width:100%; padding:8px; margin:10px 0; border-radius:5px; border:1px solid #ccc; }
+        button { padding:10px 15px; border:none; border-radius:5px; background:#333; color:#fff; cursor:pointer; }
+        #success { margin-top:20px; color:green; font-weight:bold; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a> |
+        <a href="cart.html">Cart</a>
+    </nav>
+
+    <h1>Checkout</h1>
+    <form id="checkout-form">
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="address" placeholder="Shipping Address" required>
+        <input type="text" id="card" placeholder="Card Number (dummy)" required>
+        <button type="submit">Pay Now</button>
+    </form>
+
+    <div id="success"></div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        document.getElementById("checkout-form").addEventListener("submit", function(e){
+            e.preventDefault();
+
+            if(cart.length === 0){
+                alert("Your cart is empty!");
+                return;
+            }
+
+            // simulate payment success
+            document.getElementById("success").innerText = "Payment Successful! 🎉 Your order has been placed.";
+
+            // clear cart
+            cart = [];
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+            // optional: redirect to homepage after 3 seconds
+            setTimeout(()=>{ window.location.href = "index.html"; }, 3000);
+        });
+    </script>
+</body>
+</html>

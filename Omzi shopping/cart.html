@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Omzi - Cart</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding:20px; background:#f9f9f9; }
+        nav { margin-bottom:20px; }
+        nav a { margin-right:15px; text-decoration:none; font-weight:bold; color:#333; }
+        .cart-item { display:flex; align-items:center; margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:10px; background:#fff; border-radius:8px; padding:10px; }
+        .cart-item img { width:80px; height:80px; object-fit:cover; margin-right:15px; border-radius:5px; }
+        .cart-item h4 { margin:0; }
+        .cart-item p { margin:5px 0; }
+        .cart-item button { margin-left:auto; padding:5px 10px; cursor:pointer; border:none; border-radius:5px; background:#c0392b; color:#fff; }
+        .qty-btn { padding:2px 6px; margin:0 5px; cursor:pointer; }
+        .price { font-weight:bold; color:green; }
+        .old-price { text-decoration:line-through; color:#999; margin-left:5px; font-size:0.9em; }
+        #clear-cart, #checkout-btn { margin-top:10px; padding:8px 15px; cursor:pointer; background:#333; color:#fff; border:none; border-radius:5px; margin-right:10px; }
+        #checkout-btn { background:#27ae60; }
+        @media(max-width:600px){ .cart-item{flex-direction:column; align-items:flex-start;} .cart-item button{margin-left:0; margin-top:5px;} }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">Home</a> |
+        Cart (<span id="cart-count">0</span>)
+    </nav>
+
+    <h1>Your Cart</h1>
+    <div id="cart-items"></div>
+    <h3>Total: ₹<span id="total">0</span></h3>
+    <button id="checkout-btn">Checkout</button>
+    <button id="clear-cart">Clear Cart</button>
+
+    <script>
+        // --- Products array must match homepage ---
+        let products = [
+            {id:1, name:"Running Shoes", price:999, oldPrice:1499, image:"images/shoes/shoes.jpg"},
+            {id:2, name:"Smart Watch", price:799, oldPrice:1299, image:"images/watches/watch.jpg"},
+            {id:3, name:"Hand Bag", price:499, oldPrice:999, image:"images/bags/bag.jpg"},
+            {id:4, name:"Wireless Headphones", price:1199, oldPrice:1999, image:"images/electronics/wirelessheadphones.jpg"},
+            {id:5, name:"Smartphone", price:8999, oldPrice:10999, image:"images/electronics/phones.jpg"},
+            {id:6, name:"T-Shirt", price:699, oldPrice:999, image:"images/t_shirt/tshirt.jpg"},
+            {id:7, name:"Beauty Product", price:299, oldPrice:499, image:"images/beauty/beauty.jpg"},
+            {id:8, name:"Accessories", price:199, oldPrice:399, image:"images/accessories/accessory.jpg"}
+        ];
+
+        // --- Load cart from localStorage ---
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        const cartContainer = document.getElementById("cart-items");
+        const totalEl = document.getElementById("total");
+        const cartCountEl = document.getElementById("cart-count");
+
+        // --- Display cart items ---
+        function displayCart(){
+            cartContainer.innerHTML = "";
+            let total = 0;
+            if(cart.length === 0){
+                cartContainer.innerHTML = "<p>Your cart is empty ❤️</p>";
+            } else {
+                cart.forEach(item=>{
+                    const product = products.find(p=>p.id===item.id);
+                    if(product){
+                        total += product.price * item.qty;
+                        cartContainer.innerHTML += `
+                            <div class="cart-item">
+                                <img src="${product.image}" alt="${product.name}" onerror="this.src='images/placeholder.jpg'">
+                                <div>
+                                    <h4>${product.name}</h4>
+                                    <p>
+                                        <span class="price">₹${product.price}</span>
+                                        <span class="old-price">₹${product.oldPrice}</span>
+                                    </p>
+                                    <p>Quantity: 
+                                        <button class="qty-btn" onclick="changeQty(${product.id}, -1)">-</button>
+                                        ${item.qty}
+                                        <button class="qty-btn" onclick="changeQty(${product.id}, 1)">+</button>
+                                    </p>
+                                </div>
+                                <button onclick="removeFromCart(${product.id})">Remove</button>
+                            </div>
+                        `;
+                    }
+                });
+            }
+            totalEl.innerText = total;
+            cartCountEl.innerText = cart.reduce((acc,i)=>acc+i.qty,0);
+        }
+
+        // --- Change quantity ---
+        function changeQty(id, delta){
+            const index = cart.findIndex(i=>i.id===id);
+            if(index>=0){
+                cart[index].qty += delta;
+                if(cart[index].qty <1) cart.splice(index,1);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                displayCart();
+            }
+        }
+
+        // --- Remove item ---
+        function removeFromCart(id){
+            cart = cart.filter(i=>i.id!==id);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            displayCart();
+        }
+
+        // --- Clear cart ---
+        document.getElementById("clear-cart").addEventListener("click", ()=>{
+            cart = [];
+            localStorage.setItem("cart", JSON.stringify(cart));
+            displayCart();
+        });
+
+        // --- Checkout button ---
+        document.getElementById("checkout-btn").addEventListener("click", function(){
+            if(cart.length === 0){
+                alert("Your cart is empty! Add items before checkout.");
+            } else {
+                window.location.href = "checkout.html";
+            }
+        });
+
+        // --- Initial render ---
+        displayCart();
+    </script>
+
+</body>
+</html>
